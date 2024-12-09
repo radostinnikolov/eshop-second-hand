@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин Втора Употреба</title>
+    <link rel="stylesheet" href="{% static 'app/styles.css' %}">
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">Магазин за бяха техника - втора употреба</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#">Налични уреди</a></li>
+                <li><a href="#">Контакти</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="title">Налични продукти</h1>
+        <div class="grid-container">
+            {% for item in items %}
+            <div class="grid-item" onclick="openModal({{ item.id }})">
+                {% if item.images.exists %}
+                    <img src="{{ item.images.first.image.url }}" alt="Image of {{ item.name }}" style="max-width: 200px;">
+                {% endif %}
+                <h2>{{ item.name }}</h2>
+                <p>{{ item.description }}</p>
+                <p class="price">${{ item.price }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- Modal for displaying images -->
+    <div id="image-modal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+        <div class="slideshow-container" id="slideshow-container">
+            <!-- Images will be dynamically injected here -->
+        </div>
+        <a class="prev" onclick="changeSlide(-1)">&#10094;</a>
+        <a class="next" onclick="changeSlide(1)">&#10095;</a>
+        </div>
+    </div>
+    <div class="map-container">
+        <p>Магазинът се намира на ул.Надежда 6А - гр. Раковски, обл. Пловдив. За повече информация относно състоянието на уредите, коментар на цената и доставка:</p>
+        <p>0000000000 - Магдалена Николова</p>
+        <p>0000000000 - Петър Николов</p>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2951.473163752782!2d24.95936539717862!3d42.289768222742275!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDLCsDE3JzIzLjIiTiAyNMKwNTcnNDEuMyJF!5e0!3m2!1sbg!2sbg!4v1733144249008!5m2!1sbg!2sbg" width="800" height="600" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <script>
+    let currentSlideIndex = 0;
+
+    function openModal(itemId) {
+        // Clear previous content
+        const slideshowContainer = document.getElementById('slideshow-container');
+        slideshowContainer.innerHTML = '';
+
+        // Fetch item images dynamically from the Django context
+        const itemImages = {
+            {% for item in items %}
+            {{ item.id }}: [
+                {% for image in item.images.all %}
+                '{{ image.image.url }}',
+                {% endfor %}
+            ],
+            {% endfor %}
+        };
+
+        // Get the selected item's images
+        const selectedImages = itemImages[itemId] || [];
+
+        // Add images to the slideshow
+        selectedImages.forEach((imageUrl, index) => {
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.classList.add('slideshow-image');
+            if (index === 0) img.style.display = 'block'; // Show the first image
+            slideshowContainer.appendChild(img);
+        });
+
+        // Reset the slide index
+        currentSlideIndex = 0;
+
+        // Show the modal
+        const modal = document.getElementById('image-modal');
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('image-modal');
+        modal.style.display = 'none';
+    }
+
+    function changeSlide(direction) {
+        const slides = document.querySelectorAll('.slideshow-image');
+        slides[currentSlideIndex].style.display = 'none';
+
+        // Update the slide index
+        currentSlideIndex = (currentSlideIndex + direction + slides.length) % slides.length;
+
+        // Show the new slide
+        slides[currentSlideIndex].style.display = 'block';
+    }
+
+    // Close the modal when clicking outside the content
+    window.onclick = function (event) {
+        const modal = document.getElementById('image-modal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
