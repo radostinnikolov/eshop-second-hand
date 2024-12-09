@@ -10,7 +10,8 @@ services:
         volumes:
             # Settings File and Placeholder Photo
             - ./.env:/app/.env
-            # - ./staticfiles:/tmp/app/staticfiles
+            - ./staticfiles:/tmp/app/staticfiles
+            - ./mediafiles:/app/mediafiles
         environment:
             - TZ=Europe/Sofia
         ports:
